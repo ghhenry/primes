@@ -49,6 +49,7 @@ func TestInitMoving(t *testing.T) {
 		{1 << 24},
 		{1 << 28},
 		{1<<31 - 128},
+		{0x7fffff06},
 	}
 	for _, test := range tests {
 		s := make([]uint64, 2)
@@ -77,7 +78,12 @@ func TestIterateSmall(t *testing.T) {
 		{2001, 5000, 366},
 		{10000, 1 << 16, 5313},
 		{20000, 1 << 17, 9989},
+		{1<<28 - 500, 1<<28 + 500, 53},
 		{1<<32 - 500, 1<<32 - 1, 18},
+		{65000, 70000, 442},
+		{65000, 200000, 11491},
+		{65000, 1000000, 72005},
+		//{0, 10000000, 664579},
 	}
 	for _, test := range tests {
 		count := uint32(0)
@@ -90,6 +96,19 @@ func TestIterateSmall(t *testing.T) {
 		})
 		if count != test.count {
 			t.Errorf("found %v primes, but there should be %v", count, test.count)
+		}
+	}
+}
+
+func BenchmarkSieve(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		var count int
+		Iterate(0, 10000000, func(p uint32) bool {
+			count++
+			return false
+		})
+		if count != 664579 {
+			b.Errorf("wrong count %v, want 664579", count)
 		}
 	}
 }

@@ -54,12 +54,40 @@ func Iterate(min, max uint32, consumer func(p uint32) bool) {
 		min = 1 << 16
 	}
 	// primes after the base sieve
+	var sieve []uint64
+	bound := (max - 1) / 2
+	for start := min / 2; start <= bound; start += 512 * 64 {
+		se := start + 512*64
+		if se > bound {
+			se = bound + 1
+		}
+		se -= start
+		if sieve == nil {
+			sieve = make([]uint64, (se+63)/64)
+		} else {
+			sieve = sieve[:(se+63)/64]
+			for i := range sieve {
+				sieve[i] = 0
+			}
+		}
+		initMoving(start, sieve)
+		for bit := uint32(0); bit < se; bit++ {
+			if sieve[bit/64]&(1<<uint(bit%64)) == 0 && consumer(2*(bit+start)+1) {
+				return
+			}
+		}
+	}
 }
 
 // initMoving initializes a moving sieve
 func initMoving(start uint32, sieve []uint64) {
 	end := uint32(len(sieve) * 64)
-	pmax := intsqrt.Sqrt32(2*(start+end) - 1)
+	var pmax uint32
+	if start+end < 0x80000000 {
+		pmax = intsqrt.Sqrt32(2*(start+end) - 1)
+	} else {
+		pmax = 65535
+	}
 	Iterate(3, pmax, func(p uint32) bool {
 		s := p * p / 2
 		if s >= start {
