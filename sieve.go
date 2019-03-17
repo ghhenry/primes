@@ -6,11 +6,15 @@ import (
 	"github.com/ghhenry/intsqrt"
 )
 
+const baseSieveLen = 512
+const baseLimit = 1 << 7 // need to sieve the base up to this limit
+const movingSieveLen = 512
+
 // baseSieve has one bit for each odd number below 2^16.
 // A set bit indicates the number is not prime.
 // From n to bit: n/2
 // From bit to n: 2*bit+1
-var baseSieve [512]uint64
+var baseSieve [baseSieveLen]uint64
 var initMutex sync.Mutex
 
 func initBase() {
@@ -20,19 +24,21 @@ func initBase() {
 		// already initialized
 		return
 	}
-	for bit := 1; bit < 1<<7; bit++ {
+	for bit := 1; bit < baseLimit; bit++ {
 		if baseSieve[bit/64]&(1<<uint(bit%64)) != 0 {
 			continue
 		}
 		n := 2*bit + 1
-		for i := n * n / 2; i < 512*64; i += n {
+		for i := n * n / 2; i < baseSieveLen*64; i += n {
 			baseSieve[i/64] |= 1 << uint(i%64)
 		}
 	}
+	// mark sieve as initialized
 	baseSieve[0] |= 1
 }
 
 // Iterate calls consumer with all primes between min and max (inclusive).
+// The consumer can return true to stop the iteration early.
 func Iterate(min, max uint32, consumer func(p uint32) bool) {
 	initBase()
 	// 2 is a special case
@@ -56,8 +62,8 @@ func Iterate(min, max uint32, consumer func(p uint32) bool) {
 	// primes after the base sieve
 	var sieve []uint64
 	bound := (max - 1) / 2
-	for start := min / 2; start <= bound; start += 512 * 64 {
-		se := start + 512*64
+	for start := min / 2; start <= bound; start += movingSieveLen * 64 {
+		se := start + movingSieveLen*64
 		if se > bound {
 			se = bound + 1
 		}

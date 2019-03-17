@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/ghhenry/intsqrt"
+	"github.com/soniakeys/integer/prime/queue"
 )
 
 // slow but safe primality test
@@ -104,6 +105,20 @@ func BenchmarkSieve(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		var count int
 		Iterate(0, 10000000, func(p uint32) bool {
+			count++
+			return false
+		})
+		if count != 664579 {
+			b.Errorf("wrong count %v, want 664579", count)
+		}
+	}
+}
+
+func BenchmarkQueue(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		var gen queue.PQueue
+		var count int
+		gen.Iterate(0, 10000000, func(p uint64) bool {
 			count++
 			return false
 		})
