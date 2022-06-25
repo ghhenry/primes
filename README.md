@@ -5,9 +5,11 @@ The primes must fit into an uint32.
 
 ## Usage
 
-    package primes // import "github.com/ghhenry/primes"
+```go
+package primes // import "github.com/ghhenry/primes"
 
-    func Iterate(min, max uint32, consumer func(p uint32) bool)
+func Iterate(min, max uint32, consumer func(p uint32) bool)
+```
 
-The consumer is called with all primes in the range [min, max] (borders inclusive).
-It may stop the iteration early by returning true.
+The consumer is called with all primes in the range `[min, max]` (borders inclusive).
+The consumer may stop the iteration early by returning `true`.
