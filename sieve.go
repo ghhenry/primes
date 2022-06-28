@@ -15,15 +15,9 @@ const movingSieveLen = 512
 // From n to bit: n/2
 // From bit to n: 2*bit+1
 var baseSieve [baseSieveLen]uint64
-var initMutex sync.Mutex
+var initOnce sync.Once
 
 func initBase() {
-	initMutex.Lock()
-	defer initMutex.Unlock()
-	if baseSieve[0]&1 != 0 {
-		// already initialized
-		return
-	}
 	for bit := 1; bit < baseLimit; bit++ {
 		if baseSieve[bit/64]&(1<<uint(bit%64)) != 0 {
 			continue
@@ -33,14 +27,14 @@ func initBase() {
 			baseSieve[i/64] |= 1 << uint(i%64)
 		}
 	}
-	// mark sieve as initialized
+	// 1 is not a prime
 	baseSieve[0] |= 1
 }
 
 // Iterate calls consumer with all primes between min and max (inclusive).
 // The consumer can return true to stop the iteration early.
 func Iterate(min, max uint32, consumer func(p uint32) bool) {
-	initBase()
+	initOnce.Do(initBase)
 	// 2 is a special case
 	if min <= 2 && 2 <= max && consumer(2) {
 		return
