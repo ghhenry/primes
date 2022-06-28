@@ -3,13 +3,13 @@ package primes
 import "testing"
 
 func expectNumber(t *testing.T, pc <-chan uint32, n uint32) {
-	if p, ok := <-pc; ok {
-		if p != n {
-			t.Error("got", p, "but want", n)
-		}
-		return
+	p, ok := <-pc
+	if !ok {
+		t.Error("unexpected channel close, want", n)
 	}
-	t.Error("unexpected channel close, want", n)
+	if p != n {
+		t.Error("got", p, "but want", n)
+	}
 }
 
 func expectClose(t *testing.T, pc <-chan uint32) {

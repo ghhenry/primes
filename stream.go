@@ -9,9 +9,10 @@ func Stream(min, max uint32, done <-chan struct{}) <-chan uint32 {
 			select {
 			case <-done:
 				return true
-			case out <- p:
-				return false
+			default:
 			}
+			out <- p
+			return false
 		})
 		close(out)
 	}()
