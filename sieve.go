@@ -48,7 +48,7 @@ func Iterate(min, max uint32, consumer func(p uint32) bool) {
 	// primes from base sieve
 	if min < 1<<16 {
 		var bit uint32
-		bound := max / 2
+		bound := (max - 1) / 2
 		if bound >= 1<<15 {
 			bound = 1<<15 - 1
 		}

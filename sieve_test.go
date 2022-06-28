@@ -101,6 +101,37 @@ func TestIterateSmall(t *testing.T) {
 	}
 }
 
+func TestPrimeRange(t *testing.T) {
+	var tests = []struct {
+		name  string
+		min   uint32
+		max   uint32
+		count int
+	}{
+		{"3-5", 3, 5, 2},
+		{"3-6", 3, 6, 2},
+		{"3-7", 3, 7, 3},
+		{"3-8", 3, 8, 3},
+		{"3-9", 3, 9, 3},
+		{"3-10", 3, 10, 3},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var count int
+			Iterate(test.min, test.max, func(p uint32) bool {
+				count++
+				if p < test.min || p > test.max {
+					t.Error("prime", p, "is out of bounds")
+				}
+				return false
+			})
+			if test.count != count {
+				t.Error("got count", count, "expected", test.count)
+			}
+		})
+	}
+}
+
 func BenchmarkSieve(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		var count int
