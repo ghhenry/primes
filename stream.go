@@ -7,12 +7,17 @@ func Stream(min, max uint32, done <-chan struct{}) <-chan uint32 {
 	go func() {
 		Iterate(min, max, func(p uint32) bool {
 			select {
+			// done should have priority
 			case <-done:
 				return true
 			default:
 			}
-			out <- p
-			return false
+			select {
+			case <-done:
+				return true
+			case out <- p:
+				return false
+			}
 		})
 		close(out)
 	}()
