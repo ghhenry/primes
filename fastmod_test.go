@@ -48,6 +48,14 @@ func TestFastmod(t *testing.T) {
 			name: "benchmark",
 			args: args{a, mi},
 		},
+		{
+			name: "overflow",
+			args: args{func() *big.Int {
+				z := big.NewInt(0)
+				z.SetBit(z, 65, 1)
+				return z.Sub(z, big.NewInt(1))
+			}(), 43},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
