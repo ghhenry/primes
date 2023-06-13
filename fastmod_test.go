@@ -29,6 +29,10 @@ func TestFastmod(t *testing.T) {
 		args args
 	}{
 		{
+			name: "zero",
+			args: args{big.NewInt(0), 43},
+		},
+		{
 			name: "100 % 43",
 			args: args{big.NewInt(100), 43},
 		},
