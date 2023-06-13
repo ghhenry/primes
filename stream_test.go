@@ -1,6 +1,9 @@
 package primes
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func expectNumber(t *testing.T, pc <-chan uint32, n uint32) {
 	p, ok := <-pc
@@ -19,7 +22,7 @@ func expectClose(t *testing.T, pc <-chan uint32) {
 }
 
 func TestCompleteRun(t *testing.T) {
-	pc := Stream(2, 10, nil)
+	pc := Stream(context.Background(), 2, 10)
 	expectNumber(t, pc, 2)
 	expectNumber(t, pc, 3)
 	expectNumber(t, pc, 5)
@@ -28,10 +31,10 @@ func TestCompleteRun(t *testing.T) {
 }
 
 func TestEarlyStop(t *testing.T) {
-	done := make(chan struct{})
-	pc := Stream(2, 10, done)
+	ctx, cancel := context.WithCancel(context.Background())
+	pc := Stream(ctx, 2, 10)
 	expectNumber(t, pc, 2)
 	expectNumber(t, pc, 3)
-	close(done)
+	cancel()
 	expectClose(t, pc)
 }
