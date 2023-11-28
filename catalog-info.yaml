@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: primes
+  annotations:
+    github.com/project-slug: ghhenry/primes
+spec:
+  type: other
+  lifecycle: unknown
+  owner: guests
