@@ -6,5 +6,5 @@ metadata:
     github.com/project-slug: ghhenry/primes
 spec:
   type: other
-  lifecycle: unknown
+  lifecycle: experimental
   owner: guests
